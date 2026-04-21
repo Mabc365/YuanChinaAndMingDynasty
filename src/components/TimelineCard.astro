@@ -74,12 +74,28 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
 
   /* ————— foreground content ————— */
   .tl-content {
+    position: relative;
+    isolation: isolate;
     grid-row: 1;
     display: flex;
     flex-direction: column;
     gap: 1rem;
     max-width: 55ch;
     z-index: 2;
+  }
+  /* subtle scrim so the ghost year number never bleeds through the text */
+  .tl-content::before {
+    content: "";
+    position: absolute;
+    inset: -1rem -1.75rem;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(10, 8, 4, 0.7) 0%,
+      rgba(10, 8, 4, 0.45) 45%,
+      transparent 75%
+    );
+    z-index: -1;
+    pointer-events: none;
   }
   .tl-entry--left .tl-content {
     grid-column: 2;
@@ -96,7 +112,7 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
   .tl-head {
     display: flex;
     align-items: center;
-    gap: 0.85rem;
+    gap: 1rem;
     opacity: 0;
     will-change: transform, opacity;
   }
@@ -145,26 +161,35 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
   .tl-title {
     font-family: "Cormorant Garamond", serif;
     font-style: italic;
-    font-weight: 500;
-    font-size: clamp(1.6rem, 2.2vw, 2rem);
+    font-weight: 600;
+    font-size: 1.8rem;
+    letter-spacing: 0.02em;
     line-height: 1.18;
     color: #ffffff;
   }
 
   .tl-body {
-    font-family: "Cormorant Garamond", serif;
-    font-size: 1rem;
-    line-height: 1.65;
-    color: #e8dcc8;
-    max-width: 65ch;
-    opacity: 0;
-    will-change: transform, opacity;
+    font-family: "Cormorant Garamond", serif !important;
+    font-size: 1.25rem !important;
+    line-height: 2 !important;
+    color: #e8dcc8 !important;
+    opacity: 1 !important;
+    max-width: 60ch !important;
+    font-weight: 400 !important;
+    will-change: transform;
   }
+  .tl-content { opacity: 1; }
 
   /* desktop breakpoint (lg ≈ 1024px): nudge content past the side rail */
   @media (min-width: 1024px) {
     .tl-entry {
       padding-left: 80px;
+    }
+    .tl-title {
+      font-size: 2.2rem;
+    }
+    .tl-body {
+      font-size: 1.5rem !important;
     }
   }
 
@@ -192,7 +217,8 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
     .tl-entry--right .tl-content {
       grid-column: 1;
       grid-row: 1;
-      padding: 0;
+      padding-block: 0;
+      padding-inline: 1rem;
       margin: 0;
       text-align: left;
       align-items: flex-start;
