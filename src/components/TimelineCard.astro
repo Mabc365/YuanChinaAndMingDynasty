@@ -39,15 +39,15 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
     display: grid;
     grid-template-columns: 1fr 1fr;
     align-items: center;
-    min-height: 48vh;
-    padding: 6rem 0;
+    min-height: 180px;
+    padding: 3.5rem 0;
   }
 
   /* ————— giant background year ————— */
   .tl-year {
     font-family: "Noto Serif SC", serif;
     font-weight: 600;
-    font-size: 15vw;
+    font-size: clamp(4rem, 8vw, 7rem);
     line-height: 0.85;
     color: #c9a84c;
     opacity: 0;
@@ -114,15 +114,15 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
     will-change: width;
   }
 
-  /* 4px dot that sits on the spine */
+  /* dot that sits on the spine */
   .tl-dot {
-    width: 6px;
-    height: 6px;
+    width: 8px;
+    height: 8px;
     border-radius: 50%;
     background: #c9a84c;
     box-shadow: 0 0 12px rgba(201, 168, 76, 0.65);
     flex-shrink: 0;
-    order: -1; /* place dot at the spine side */
+    order: -1;
   }
   .tl-entry--left .tl-dot { order: -1; margin-left: -3.5rem; }
   .tl-entry--right .tl-dot { order: -1; margin-right: -3.5rem; }
@@ -146,19 +146,26 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
     font-family: "Cormorant Garamond", serif;
     font-style: italic;
     font-weight: 500;
-    font-size: 1.8rem;
+    font-size: clamp(1.6rem, 2.2vw, 2rem);
     line-height: 1.18;
     color: #ffffff;
   }
 
   .tl-body {
     font-family: "Cormorant Garamond", serif;
-    font-size: 1.1rem;
-    line-height: 1.6;
+    font-size: 1rem;
+    line-height: 1.65;
     color: #e8dcc8;
-    max-width: 55ch;
+    max-width: 65ch;
     opacity: 0;
     will-change: transform, opacity;
+  }
+
+  /* desktop breakpoint (lg ≈ 1024px): nudge content past the side rail */
+  @media (min-width: 1024px) {
+    .tl-entry {
+      padding-left: 80px;
+    }
   }
 
   /* ————— mobile: collapse to a single column ————— */
@@ -212,6 +219,9 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
     );
     if (!entries.length) return;
 
+    const ruleTarget = () =>
+      window.matchMedia("(min-width: 1024px)").matches ? 60 : 30;
+
     let gsap: any, ScrollTrigger: any;
     try {
       gsap = (await import("https://cdn.skypack.dev/gsap")).default;
@@ -236,7 +246,7 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
               if (year) year.style.opacity = "0.15";
               if (head) { head.style.opacity = "1"; head.style.transform = "translateX(0)"; }
               if (body) { body.style.opacity = "1"; body.style.transform = "translateX(0)"; }
-              if (rule) rule.style.width = "30px";
+              if (rule) rule.style.width = `${ruleTarget()}px`;
             });
             io.unobserve(el);
           }
@@ -279,7 +289,7 @@ const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
         .fromTo(
           rule,
           { width: 0 },
-          { width: 30, duration: 0.7, ease: "power2.out" },
+          { width: ruleTarget(), duration: 0.7, ease: "power2.out" },
           0.3
         )
         .fromTo(

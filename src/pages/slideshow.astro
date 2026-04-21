@@ -273,9 +273,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 
 <script>
-  const PDF_URL = "/slideshow.pdf";
   const WORKER_URL =
     "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+  // set worker src as soon as pdf.js is available, before any getDocument call
+  if ((window as any).pdfjsLib) {
+    (window as any).pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_URL;
+  }
 
   const initReader = async () => {
     const canvas = document.querySelector<HTMLCanvasElement>("[data-sld-canvas]");
@@ -294,6 +298,9 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       return;
     }
     pdfjsLib.GlobalWorkerOptions.workerSrc = WORKER_URL;
+
+    // absolute URL so Vercel's edge fetches from the same origin at runtime
+    const PDF_URL = `${window.location.origin}/slideshow.pdf`;
 
     let gsap: any = null;
     try {
@@ -402,7 +409,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
     document.addEventListener("astro:before-swap", cleanup);
 
     try {
-      const loadingTask = pdfjsLib.getDocument(PDF_URL);
+      const loadingTask = pdfjsLib.getDocument({
+        url: PDF_URL,
+        withCredentials: false,
+      });
       pdfDoc = await loadingTask.promise;
       totalEl.textContent = pad(pdfDoc.numPages);
       status.classList.add("is-hidden");

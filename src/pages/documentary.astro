@@ -1,8 +1,79 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
-import ComingSoon from "../components/ComingSoon.astro";
 ---
 
 <BaseLayout title="Yuan · Ming — The Documentary" disableLenis={true}>
-  <ComingSoon />
+  <section
+    class="relative min-h-[100svh] w-full overflow-hidden flex items-center justify-center px-6"
+    data-documentary
+  >
+    <!-- film grain -->
+    <div class="film-grain" aria-hidden="true"></div>
+
+    <!-- 元明 watermark -->
+    <div
+      class="absolute inset-0 flex items-center justify-center pointer-events-none select-none"
+      aria-hidden="true"
+    >
+      <span
+        class="display text-gold tracking-[-0.02em] leading-none"
+        style="font-size: min(54vw, 52vh); opacity: 0.04;"
+      >
+        元明
+      </span>
+    </div>
+
+    <!-- vignette -->
+    <div
+      class="absolute inset-0 pointer-events-none"
+      style="background: radial-gradient(circle at 50% 50%, transparent 30%, rgba(10,8,4,0.85) 90%);"
+      aria-hidden="true"
+    ></div>
+
+    <!-- content -->
+    <div class="relative z-10 w-full flex flex-col items-center gap-10 py-32">
+      <div class="doc-video-frame">
+        <video
+          src="/video.mp4"
+          controls
+          preload="metadata"
+          playsinline
+          class="doc-video"
+        ></video>
+      </div>
+
+      <h1 class="doc-title">
+        Yuan · Ming <span class="doc-title-sep">—</span> The Documentary
+      </h1>
+    </div>
+  </section>
 </BaseLayout>
+
+<style>
+  .doc-video-frame {
+    width: 85vw;
+    max-width: 1100px;
+    background: #000;
+    border: 1px solid #c9a84c;
+    box-shadow: 0 30px 80px -40px rgba(0, 0, 0, 0.9);
+  }
+  .doc-video {
+    display: block;
+    width: 100%;
+    height: auto;
+    background: #000;
+  }
+  .doc-title {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 500;
+    color: #c9a84c;
+    text-align: center;
+    font-size: clamp(1.5rem, 3vw, 2.25rem);
+    letter-spacing: 0.08em;
+    line-height: 1.2;
+  }
+  .doc-title-sep {
+    opacity: 0.6;
+    margin: 0 0.35em;
+  }
+</style>
