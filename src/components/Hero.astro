@@ -18,19 +18,35 @@
     aria-hidden="true"
   ></div>
 
-  <!-- Foreground -->
-  <div class="relative z-10 h-full flex flex-col justify-center items-center px-6 text-center">
-    <p class="mono text-gold mb-8 tracking-[0.4em]">
-      1271 &nbsp;—&nbsp; 1644
-    </p>
+  <!-- Layer 3: vignette -->
+  <div
+    class="absolute inset-0 pointer-events-none"
+    style="background: radial-gradient(ellipse at center, transparent 30%, rgba(10,8,4,0.85) 100%);"
+    aria-hidden="true"
+  ></div>
 
+  <!-- Foreground -->
+  <div
+    class="relative z-10 h-full flex flex-col justify-center items-center px-6 text-center"
+    style="margin-top: -5vh;"
+  >
     <h1
-      class="display text-parchment text-[clamp(2.6rem,9vw,7.5rem)] leading-[1.02] max-w-[16ch]"
-      style="text-shadow: 0 2px 40px rgba(0,0,0,0.6);"
+      class="display text-parchment leading-[1.02] max-w-[16ch]"
+      style="font-size: clamp(3rem, 7vw, 6rem); letter-spacing: 0.04em; text-shadow: 0 0 80px rgba(201,168,76,0.3);"
     >
       From the Steppe<br />
       <span class="italic text-gold/90">to the Sea</span>
     </h1>
+
+    <!-- Thin gold rule between headline and subtitle -->
+    <div
+      aria-hidden="true"
+      style="width: 120px; height: 1px; background: #c9a84c; margin: 1.5rem auto;"
+    ></div>
+
+    <p class="hero-subtitle">
+      Yuan &nbsp;&middot;&nbsp; Ming &nbsp;&middot;&nbsp; 1271–1644
+    </p>
 
     <div class="rule-diamond mt-10 max-w-[520px]">
       <span class="diamond"></span>
@@ -44,20 +60,11 @@
 
   <!-- Scroll cue -->
   <div
-    class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 scroll-cue z-10"
+    class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-10"
     aria-hidden="true"
   >
-    <span class="mono text-gold/70">Scroll</span>
-    <svg width="14" height="28" viewBox="0 0 14 28" fill="none">
-      <path
-        d="M7 2 V24 M2 19 L7 25 L12 19"
-        stroke="currentColor"
-        stroke-width="1"
-        class="text-gold"
-        stroke-linecap="round"
-        stroke-linejoin="round"
-      />
-    </svg>
+    <div class="scroll-line"></div>
+    <span class="scroll-label">scroll</span>
   </div>
 </section>
 
