@@ -1,0 +1,99 @@
+---
+---
+
+<section
+  class="relative h-[100svh] w-full overflow-hidden ink-wash"
+  data-hero
+>
+  <!-- Layer 1: drifting characters -->
+  <div class="absolute inset-0 pointer-events-none" aria-hidden="true">
+    <span class="hero-ch hero-ch--yuan" data-parallax="0.25">元</span>
+    <span class="hero-ch hero-ch--ming" data-parallax="0.45">明</span>
+  </div>
+
+  <!-- Layer 2: subtle horizon wash -->
+  <div
+    class="absolute inset-x-0 bottom-0 h-1/2 pointer-events-none"
+    style="background: linear-gradient(to top, rgba(10,8,4,0.9), transparent);"
+    aria-hidden="true"
+  ></div>
+
+  <!-- Foreground -->
+  <div class="relative z-10 h-full flex flex-col justify-center items-center px-6 text-center">
+    <p class="mono text-gold mb-8 tracking-[0.4em]">
+      1271 &nbsp;—&nbsp; 1644
+    </p>
+
+    <h1
+      class="display text-parchment text-[clamp(2.6rem,9vw,7.5rem)] leading-[1.02] max-w-[16ch]"
+      style="text-shadow: 0 2px 40px rgba(0,0,0,0.6);"
+    >
+      From the Steppe<br />
+      <span class="italic text-gold/90">to the Sea</span>
+    </h1>
+
+    <div class="rule-diamond mt-10 max-w-[520px]">
+      <span class="diamond"></span>
+    </div>
+
+    <p class="mt-8 text-parchment/70 text-lg md:text-xl max-w-[44ch]">
+      The Yuan &amp; Ming dynasties of imperial China —
+      four centuries of conquest, reform, voyage and collapse.
+    </p>
+  </div>
+
+  <!-- Scroll cue -->
+  <div
+    class="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-3 scroll-cue z-10"
+    aria-hidden="true"
+  >
+    <span class="mono text-gold/70">Scroll</span>
+    <svg width="14" height="28" viewBox="0 0 14 28" fill="none">
+      <path
+        d="M7 2 V24 M2 19 L7 25 L12 19"
+        stroke="currentColor"
+        stroke-width="1"
+        class="text-gold"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+      />
+    </svg>
+  </div>
+</section>
+
+<script>
+  const initHeroParallax = () => {
+    const hero = document.querySelector<HTMLElement>("[data-hero]");
+    if (!hero) return;
+
+    const layers = Array.from(
+      hero.querySelectorAll<HTMLElement>("[data-parallax]")
+    );
+
+    let ticking = false;
+    const onScroll = () => {
+      if (ticking) return;
+      ticking = true;
+      requestAnimationFrame(() => {
+        const rect = hero.getBoundingClientRect();
+        if (rect.bottom < -50) {
+          ticking = false;
+          return;
+        }
+        const progress = -rect.top; // px scrolled into the hero
+        for (const layer of layers) {
+          const speed = parseFloat(layer.dataset.parallax ?? "0.3");
+          layer.style.transform = `translate3d(0, ${-progress * speed}px, 0)`;
+        }
+        ticking = false;
+      });
+    };
+
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+  };
+
+  initHeroParallax();
+  document.addEventListener("astro:after-swap", initHeroParallax);
+</script>

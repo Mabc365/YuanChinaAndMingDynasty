@@ -1,0 +1,296 @@
+---
+interface Props {
+  year: string;
+  title: string;
+  body: string;
+  dynasty: "yuan" | "ming";
+  index: number;
+}
+const { year, title, body, dynasty, index } = Astro.props;
+const side: "left" | "right" = index % 2 === 0 ? "left" : "right";
+---
+
+<article
+  class:list={["tl-entry", `tl-entry--${side}`, `tl-entry--${dynasty}`]}
+  data-tl-entry
+>
+  <!-- giant decorative year -->
+  <span class="tl-year" data-tl-year aria-hidden="true">{year}</span>
+
+  <!-- foreground content column (title + body) -->
+  <div class="tl-content">
+    <div class="tl-head">
+      <span class="tl-rule" data-tl-rule aria-hidden="true"></span>
+      <span class="tl-dot" aria-hidden="true"></span>
+      <div class="tl-head-text" data-tl-text>
+        <span class="tl-eyebrow">
+          {dynasty === "yuan" ? "元 · Yuan" : "明 · Ming"} <span class="tl-eyebrow-dot">·</span> {year}
+        </span>
+        <h3 class="tl-title">{title}</h3>
+      </div>
+    </div>
+    <p class="tl-body" data-tl-body>{body}</p>
+  </div>
+</article>
+
+<style>
+  .tl-entry {
+    position: relative;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    align-items: center;
+    min-height: 48vh;
+    padding: 6rem 0;
+  }
+
+  /* ————— giant background year ————— */
+  .tl-year {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    font-size: 15vw;
+    line-height: 0.85;
+    color: #c9a84c;
+    opacity: 0;
+    letter-spacing: -0.03em;
+    pointer-events: none;
+    user-select: none;
+    white-space: nowrap;
+    will-change: opacity, transform;
+  }
+
+  /* odd = left of spine, even = right of spine */
+  .tl-entry--left .tl-year {
+    grid-column: 1;
+    justify-self: end;
+    text-align: right;
+    padding-right: 3.5rem;
+  }
+  .tl-entry--right .tl-year {
+    grid-column: 2;
+    justify-self: start;
+    text-align: left;
+    padding-left: 3.5rem;
+  }
+
+  /* ————— foreground content ————— */
+  .tl-content {
+    grid-row: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    max-width: 55ch;
+    z-index: 2;
+  }
+  .tl-entry--left .tl-content {
+    grid-column: 2;
+    padding-left: 3.5rem;
+  }
+  .tl-entry--right .tl-content {
+    grid-column: 1;
+    padding-right: 3.5rem;
+    margin-left: auto;
+    text-align: right;
+    align-items: flex-end;
+  }
+
+  .tl-head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+  .tl-entry--right .tl-head {
+    flex-direction: row-reverse;
+  }
+
+  /* rule connecting to spine dot */
+  .tl-rule {
+    display: block;
+    width: 0;
+    height: 1px;
+    background: #c9a84c;
+    flex-shrink: 0;
+    will-change: width;
+  }
+
+  /* 4px dot that sits on the spine */
+  .tl-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #c9a84c;
+    box-shadow: 0 0 12px rgba(201, 168, 76, 0.65);
+    flex-shrink: 0;
+    order: -1; /* place dot at the spine side */
+  }
+  .tl-entry--left .tl-dot { order: -1; margin-left: -3.5rem; }
+  .tl-entry--right .tl-dot { order: -1; margin-right: -3.5rem; }
+
+  .tl-head-text {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+  }
+
+  .tl-eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: #c9a84c;
+    font-size: 0.7rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+  }
+  .tl-eyebrow-dot { opacity: 0.6; margin: 0 0.25em; }
+
+  .tl-title {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 1.8rem;
+    line-height: 1.18;
+    color: #ffffff;
+  }
+
+  .tl-body {
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #e8dcc8;
+    max-width: 55ch;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  /* ————— mobile: collapse to a single column ————— */
+  @media (max-width: 768px) {
+    .tl-entry {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding: 3rem 0 3rem 3rem;
+    }
+    .tl-year {
+      grid-column: 1;
+      grid-row: 1;
+      font-size: 22vw;
+      text-align: left !important;
+      padding: 0 !important;
+      justify-self: start !important;
+      position: absolute;
+      top: 0;
+      left: 3rem;
+      right: 0;
+      z-index: 1;
+    }
+    .tl-entry--left .tl-content,
+    .tl-entry--right .tl-content {
+      grid-column: 1;
+      grid-row: 1;
+      padding: 0;
+      margin: 0;
+      text-align: left;
+      align-items: flex-start;
+      position: relative;
+      z-index: 2;
+      margin-top: 4rem;
+    }
+    .tl-entry--left .tl-head,
+    .tl-entry--right .tl-head {
+      flex-direction: row;
+    }
+    .tl-entry--left .tl-dot,
+    .tl-entry--right .tl-dot {
+      margin-left: -3rem;
+      margin-right: 0;
+    }
+  }
+</style>
+
+<script>
+  const initTimelineReveals = async () => {
+    const entries = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-tl-entry]")
+    );
+    if (!entries.length) return;
+
+    let gsap: any, ScrollTrigger: any;
+    try {
+      gsap = (await import("https://cdn.skypack.dev/gsap")).default;
+      ScrollTrigger = (await import("https://cdn.skypack.dev/gsap/ScrollTrigger")).default;
+      gsap.registerPlugin(ScrollTrigger);
+    } catch {
+      // fallback: IO reveal
+      const io = new IntersectionObserver(
+        (list) => {
+          for (const entry of list) {
+            if (!entry.isIntersecting) continue;
+            const el = entry.target as HTMLElement;
+            const year = el.querySelector<HTMLElement>("[data-tl-year]");
+            const head = el.querySelector<HTMLElement>(".tl-head");
+            const rule = el.querySelector<HTMLElement>("[data-tl-rule]");
+            const body = el.querySelector<HTMLElement>("[data-tl-body]");
+            if (year) year.style.transition = "opacity 1s ease";
+            if (head) head.style.transition = "opacity 0.8s ease, transform 0.8s ease";
+            if (body) body.style.transition = "opacity 0.8s ease 0.1s, transform 0.8s ease 0.1s";
+            if (rule) rule.style.transition = "width 0.8s ease 0.2s";
+            requestAnimationFrame(() => {
+              if (year) year.style.opacity = "0.15";
+              if (head) { head.style.opacity = "1"; head.style.transform = "translateX(0)"; }
+              if (body) { body.style.opacity = "1"; body.style.transform = "translateX(0)"; }
+              if (rule) rule.style.width = "30px";
+            });
+            io.unobserve(el);
+          }
+        },
+        { threshold: 0.2, rootMargin: "0px 0px -80px 0px" }
+      );
+      for (const el of entries) io.observe(el);
+      return;
+    }
+
+    for (const el of entries) {
+      const isLeft = el.classList.contains("tl-entry--left");
+      const xFrom = isLeft ? 40 : -40;
+
+      const year = el.querySelector("[data-tl-year]");
+      const head = el.querySelector(".tl-head");
+      const body = el.querySelector("[data-tl-body]");
+      const rule = el.querySelector("[data-tl-rule]");
+
+      const tl = gsap.timeline({
+        scrollTrigger: {
+          trigger: el,
+          start: "top 82%",
+          toggleActions: "play none none none",
+        },
+      });
+
+      tl.fromTo(
+        year,
+        { opacity: 0, y: 30 },
+        { opacity: 0.15, y: 0, duration: 1.2, ease: "power3.out" },
+        0
+      )
+        .fromTo(
+          head,
+          { opacity: 0, x: xFrom },
+          { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" },
+          0.15
+        )
+        .fromTo(
+          rule,
+          { width: 0 },
+          { width: 30, duration: 0.7, ease: "power2.out" },
+          0.3
+        )
+        .fromTo(
+          body,
+          { opacity: 0, x: xFrom * 0.6 },
+          { opacity: 1, x: 0, duration: 0.8, ease: "power3.out" },
+          0.3
+        );
+    }
+  };
+
+  initTimelineReveals();
+  document.addEventListener("astro:after-swap", initTimelineReveals);
+</script>

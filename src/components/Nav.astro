@@ -1,0 +1,366 @@
+---
+const { pathname } = Astro.url;
+const links = [
+  { href: "/",            cn: "年表", en: "Timeline"    },
+  { href: "/slideshow",   cn: "典籍", en: "Slideshow"   },
+  { href: "/documentary", cn: "影像", en: "Documentary" },
+];
+const isActive = (href: string) =>
+  href === "/" ? pathname === "/" : pathname.startsWith(href);
+const activeIndex = Math.max(
+  0,
+  links.findIndex((l) => isActive(l.href))
+);
+---
+
+<!-- ——————————————— DESKTOP RAIL ——————————————— -->
+<aside
+  class="vnav-root hidden md:flex"
+  data-vnav
+  aria-label="Primary"
+  data-active-index={activeIndex}
+>
+  <nav class="vnav-list">
+    <span class="vnav-active-bar" data-vnav-bar aria-hidden="true"></span>
+
+    {links.map((l, i) => (
+      <a
+        href={l.href}
+        class:list={["vnav-item", isActive(l.href) && "is-active"]}
+        data-vnav-item
+        data-index={i}
+      >
+        <span class="vnav-cn">{l.cn}</span>
+        <span class="vnav-en">{l.en}</span>
+      </a>
+    ))}
+  </nav>
+
+  <a href="/" class="vnav-wordmark" aria-label="Yuan · Ming">
+    <span>元</span>
+    <span class="vnav-wm-dot">·</span>
+    <span>明</span>
+  </a>
+</aside>
+
+<!-- ——————————————— MOBILE BAR + OVERLAY ——————————————— -->
+<header class="mnav-bar md:hidden" data-mnav>
+  <a href="/" class="mnav-mark">元 · 明</a>
+  <button
+    type="button"
+    class="mnav-toggle"
+    aria-label="Open navigation"
+    aria-expanded="false"
+    data-mnav-toggle
+  >
+    <span></span><span></span><span></span>
+  </button>
+</header>
+
+<div class="mnav-overlay md:hidden" data-mnav-overlay aria-hidden="true">
+  <nav class="mnav-list">
+    {links.map((l) => (
+      <a
+        href={l.href}
+        class:list={["mnav-item", isActive(l.href) && "is-active"]}
+      >
+        <span class="mnav-cn">{l.cn}</span>
+        <span class="mnav-en">{l.en}</span>
+      </a>
+    ))}
+  </nav>
+  <p class="mnav-foot">元 · 明 · 1271 — 1644</p>
+</div>
+
+<style>
+  /* ————— vertical rail ————— */
+  .vnav-root {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 60px;
+    height: 100vh;
+    z-index: 60;
+    background: transparent;
+    pointer-events: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-between;
+    padding: 2.25rem 0 2rem;
+  }
+  .vnav-root::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    width: 1px;
+    background: #c9a84c;
+    opacity: 0.55;
+  }
+
+  .vnav-list {
+    position: relative;
+    margin-top: 4rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2.25rem;
+    pointer-events: auto;
+  }
+
+  .vnav-active-bar {
+    position: absolute;
+    left: -18px; /* sits on the 1px gold line */
+    width: 3px;
+    height: 42px;
+    background: #c0392b;
+    top: 0;
+    opacity: 0;
+    will-change: transform, opacity;
+  }
+
+  .vnav-item {
+    writing-mode: vertical-rl;
+    transform: rotate(180deg);
+    text-orientation: mixed;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.75rem;
+    color: rgba(232, 220, 200, 0.6);
+    font-family: "Noto Serif SC", serif;
+    font-size: 1.05rem;
+    letter-spacing: 0.25em;
+    padding: 0.25rem 0;
+    transition: color 0.35s;
+    pointer-events: auto;
+    text-decoration: none;
+  }
+  .vnav-item:hover { color: #c9a84c; }
+  .vnav-item.is-active { color: #c9a84c; }
+
+  .vnav-cn { font-weight: 500; }
+  .vnav-en {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 9px;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    opacity: 0.65;
+  }
+
+  .vnav-wordmark {
+    pointer-events: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.35rem;
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    color: #c9a84c;
+    font-size: 1.5rem;
+    line-height: 1;
+    letter-spacing: 0.05em;
+    text-decoration: none;
+  }
+  .vnav-wm-dot {
+    font-size: 0.9rem;
+    opacity: 0.8;
+    line-height: 1;
+  }
+
+  /* ————— mobile top bar ————— */
+  .mnav-bar {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 60;
+    height: 58px;
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: rgba(10, 8, 4, 0.72);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(201, 168, 76, 0.2);
+  }
+  .mnav-mark {
+    font-family: "Noto Serif SC", serif;
+    color: #c9a84c;
+    font-size: 1.05rem;
+    letter-spacing: 0.2em;
+    text-decoration: none;
+  }
+  .mnav-toggle {
+    width: 34px;
+    height: 24px;
+    background: transparent;
+    border: 0;
+    position: relative;
+    cursor: pointer;
+  }
+  .mnav-toggle span {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: #c9a84c;
+    transition: transform 0.35s, top 0.35s, opacity 0.35s;
+  }
+  .mnav-toggle span:nth-child(1) { top: 4px; }
+  .mnav-toggle span:nth-child(2) { top: 12px; }
+  .mnav-toggle span:nth-child(3) { top: 20px; }
+  .mnav-toggle[aria-expanded="true"] span:nth-child(1) {
+    top: 12px; transform: rotate(45deg);
+  }
+  .mnav-toggle[aria-expanded="true"] span:nth-child(2) { opacity: 0; }
+  .mnav-toggle[aria-expanded="true"] span:nth-child(3) {
+    top: 12px; transform: rotate(-45deg);
+  }
+
+  .mnav-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 55;
+    background: rgba(10, 8, 4, 0.96);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+  }
+  .mnav-overlay.is-open {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .mnav-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    text-align: center;
+  }
+  .mnav-item {
+    font-family: "Noto Serif SC", serif;
+    color: rgba(232, 220, 200, 0.75);
+    font-size: 2rem;
+    letter-spacing: 0.3em;
+    text-decoration: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.25rem;
+  }
+  .mnav-item.is-active { color: #c9a84c; }
+  .mnav-item .mnav-en {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 10px;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    opacity: 0.6;
+  }
+  .mnav-foot {
+    position: absolute;
+    bottom: 2rem;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: rgba(201, 168, 76, 0.5);
+    font-size: 10px;
+    letter-spacing: 0.45em;
+  }
+</style>
+
+<script>
+  const initVnav = async () => {
+    const root = document.querySelector<HTMLElement>("[data-vnav]");
+    const bar = document.querySelector<HTMLElement>("[data-vnav-bar]");
+    const items = Array.from(
+      document.querySelectorAll<HTMLElement>("[data-vnav-item]")
+    );
+    if (!root || !bar || !items.length) return;
+
+    const activeIndex = Number(root.dataset.activeIndex ?? 0);
+
+    let gsapRef: any = null;
+    try {
+      gsapRef = (await import("https://cdn.skypack.dev/gsap")).default;
+    } catch { /* fall through to CSS transform */ }
+
+    const positionBar = (index: number, animate: boolean) => {
+      const target = items[index];
+      if (!target) return;
+      const listRect = (target.parentElement as HTMLElement).getBoundingClientRect();
+      const itemRect = target.getBoundingClientRect();
+      const top = itemRect.top - listRect.top + (itemRect.height - 42) / 2;
+
+      if (!animate || !gsapRef) {
+        bar.style.transition = animate ? "transform 0.5s cubic-bezier(.22,.61,.36,1), opacity 0.35s" : "none";
+        bar.style.transform = `translateY(${top}px)`;
+        bar.style.opacity = "1";
+        return;
+      }
+
+      gsapRef.to(bar, {
+        y: top,
+        opacity: 1,
+        duration: 0.55,
+        ease: "power3.out",
+      });
+    };
+
+    // initial place (no animation so the bar appears immediately at active item)
+    requestAnimationFrame(() => positionBar(activeIndex, false));
+
+    // slide-to-hover, reset on leave
+    for (const item of items) {
+      item.addEventListener("mouseenter", () => {
+        positionBar(Number(item.dataset.index), true);
+      });
+    }
+    root.addEventListener("mouseleave", () => {
+      positionBar(activeIndex, true);
+    });
+
+    // reposition on resize
+    window.addEventListener("resize", () => positionBar(activeIndex, false), {
+      passive: true,
+    });
+  };
+
+  const initMnav = () => {
+    const toggle = document.querySelector<HTMLButtonElement>("[data-mnav-toggle]");
+    const overlay = document.querySelector<HTMLElement>("[data-mnav-overlay]");
+    if (!toggle || !overlay) return;
+
+    const close = () => {
+      overlay.classList.remove("is-open");
+      toggle.setAttribute("aria-expanded", "false");
+      document.body.style.overflow = "";
+    };
+    const open = () => {
+      overlay.classList.add("is-open");
+      toggle.setAttribute("aria-expanded", "true");
+      document.body.style.overflow = "hidden";
+    };
+
+    toggle.addEventListener("click", () => {
+      if (overlay.classList.contains("is-open")) close();
+      else open();
+    });
+
+    // close on link tap
+    for (const link of overlay.querySelectorAll("a")) {
+      link.addEventListener("click", () => close());
+    }
+  };
+
+  const boot = () => {
+    initVnav();
+    initMnav();
+  };
+
+  boot();
+  document.addEventListener("astro:after-swap", boot);
+</script>

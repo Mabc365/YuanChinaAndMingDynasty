@@ -1,0 +1,193 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import TimelineCard from "../components/TimelineCard.astro";
+import ParallaxDivider from "../components/ParallaxDivider.astro";
+
+type Event = {
+  year: string;
+  title: string;
+  body: string;
+  dynasty: "yuan" | "ming";
+};
+
+const yuan: Event[] = [
+  {
+    year: "1271",
+    title: "Kublai Khan founds the Yuan",
+    body: "Grandson of Genghis, Kublai proclaims the Great Yuan and establishes Dadu — modern Beijing — as the capital of a Mongol empire now cast in Chinese imperial form.",
+    dynasty: "yuan",
+  },
+  {
+    year: "1275",
+    title: "Marco Polo at the Mongol court",
+    body: "The young Venetian arrives at Kublai's court, beginning two decades of service whose later account would seed Europe's imagination of the East.",
+    dynasty: "yuan",
+  },
+  {
+    year: "1279",
+    title: "The fall of Southern Song",
+    body: "At the naval battle of Yamen the last Song loyalists perish in the sea. For the first time in its history all of China lies under a single foreign dynasty.",
+    dynasty: "yuan",
+  },
+  {
+    year: "1293",
+    title: "The failed invasion of Java",
+    body: "A Mongol fleet returns from Java in disarray, exposing the limits of steppe cavalry against tropical terrain and monsoon seas — the high-water mark of expansion.",
+    dynasty: "yuan",
+  },
+  {
+    year: "1315",
+    title: "Revival of the examinations",
+    body: "After decades of neglect Renzong restores the imperial examination system, grudgingly reopening a path for Chinese literati into Mongol bureaucracy.",
+    dynasty: "yuan",
+  },
+  {
+    year: "1351",
+    title: "The Red Turban Rebellion",
+    body: "Peasant uprisings under the White Lotus sect ignite across the Yangtze and the North China Plain. The dynasty's grip begins to slip river by river.",
+    dynasty: "yuan",
+  },
+  {
+    year: "1368",
+    title: "Zhu Yuanzhang expels the Mongols",
+    body: "A destitute monk turned warlord drives the last Yuan emperor back to the steppe and proclaims himself Hongwu, founder of the Ming — the Brilliant Dynasty.",
+    dynasty: "yuan",
+  },
+];
+
+const ming: Event[] = [
+  {
+    year: "1368",
+    title: "The Hongwu reforms",
+    body: "Hongwu rebuilds a war-broken China: redistributes land, codifies law, purges the bureaucracy, and centralises power into the emperor's own hands with ruthless efficiency.",
+    dynasty: "ming",
+  },
+  {
+    year: "1402",
+    title: "The Yongle usurpation",
+    body: "Prince Zhu Di deposes his nephew and takes the throne as Yongle. From this contested accession will rise the Forbidden City, the treasure fleets and a new imperial ambition.",
+    dynasty: "ming",
+  },
+  {
+    year: "1405–1433",
+    title: "The voyages of Zheng He",
+    body: "Seven great expeditions carry Ming ships to Southeast Asia, India, Arabia and East Africa — vessels larger than any Europe would launch for another century.",
+    dynasty: "ming",
+  },
+  {
+    year: "1421",
+    title: "The capital moves north",
+    body: "Beijing is inaugurated as the new imperial centre; the Forbidden City, a 72-hectare cosmogram in red and gold, becomes the axis of the Chinese world.",
+    dynasty: "ming",
+  },
+  {
+    year: "1449",
+    title: "The Tumu Crisis",
+    body: "The Zhengtong Emperor is captured by Oirat Mongols in a humiliating field disaster. The Ming survives, but the romance of northern expansion is buried for good.",
+    dynasty: "ming",
+  },
+  {
+    year: "1557",
+    title: "The Portuguese at Macau",
+    body: "Lisbon's merchants are granted a permanent foothold at Macau, opening the first enduring maritime link between Ming China and early-modern Europe.",
+    dynasty: "ming",
+  },
+  {
+    year: "1582",
+    title: "Matteo Ricci enters China",
+    body: "The Jesuit scholar arrives in the south and begins a lifelong project of translation — Euclid, clocks, cartography — conducted in fluent, literary Chinese.",
+    dynasty: "ming",
+  },
+  {
+    year: "1644",
+    title: "The fall of Beijing",
+    body: "Li Zicheng's rebel army enters the capital; the Chongzhen Emperor hangs himself on Jingshan hill. Within weeks the Manchu Qing will ride through the gates.",
+    dynasty: "ming",
+  },
+];
+---
+
+<BaseLayout title="Yuan · Ming — Timeline">
+  <Hero />
+
+  <!-- Dynasty heading: Yuan -->
+  <section class="relative px-6 md:px-12 pt-28 pb-16 text-center">
+    <p class="mono text-gold tracking-[0.5em] mb-5">1271 — 1368</p>
+    <h2 class="display text-parchment text-5xl md:text-7xl">
+      The <span class="italic text-gold">Yuan</span> Dynasty
+    </h2>
+    <p class="mt-5 text-parchment/60 max-w-[56ch] mx-auto italic text-lg">
+      A century of steppe emperors ruling the Middle Kingdom —
+      the only foreign house to unify China from its founding.
+    </p>
+    <div class="rule-diamond max-w-[460px] mx-auto mt-10">
+      <span class="diamond"></span>
+    </div>
+  </section>
+
+  <!-- Yuan timeline -->
+  <section class="relative max-w-[1200px] mx-auto pb-12 px-2 md:px-12">
+    <div class="timeline-spine" aria-hidden="true"></div>
+    <div class="flex flex-col">
+      {yuan.map((ev, i) => (
+        <TimelineCard
+          year={ev.year}
+          title={ev.title}
+          body={ev.body}
+          dynasty={ev.dynasty}
+          index={i}
+        />
+      ))}
+    </div>
+  </section>
+
+  <ParallaxDivider year="1368" caption="The Mandate Shifts" />
+
+  <!-- Dynasty heading: Ming -->
+  <section class="relative px-6 md:px-12 pt-10 pb-16 text-center">
+    <p class="mono text-gold tracking-[0.5em] mb-5">1368 — 1644</p>
+    <h2 class="display text-parchment text-5xl md:text-7xl">
+      The <span class="italic text-gold">Ming</span> Dynasty
+    </h2>
+    <p class="mt-5 text-parchment/60 max-w-[56ch] mx-auto italic text-lg">
+      Three centuries of Chinese restoration —
+      imperial splendour, global voyages, and a slow, candle-lit collapse.
+    </p>
+    <div class="rule-diamond max-w-[460px] mx-auto mt-10">
+      <span class="diamond"></span>
+    </div>
+  </section>
+
+  <!-- Ming timeline -->
+  <section class="relative max-w-[1200px] mx-auto pb-40 px-2 md:px-12">
+    <div class="timeline-spine" aria-hidden="true"></div>
+    <div class="flex flex-col">
+      {ming.map((ev, i) => (
+        <TimelineCard
+          year={ev.year}
+          title={ev.title}
+          body={ev.body}
+          dynasty={ev.dynasty}
+          index={i}
+        />
+      ))}
+    </div>
+  </section>
+
+  <!-- Epilogue -->
+  <section class="relative px-6 md:px-12 pb-32 text-center">
+    <div class="rule-diamond max-w-[460px] mx-auto mb-10">
+      <span class="diamond"></span>
+    </div>
+    <p class="mono text-gold tracking-[0.5em] mb-5">1644 —</p>
+    <h2 class="display text-parchment text-4xl md:text-6xl italic">
+      And the wheel turns.
+    </h2>
+    <p class="mt-6 text-parchment/60 max-w-[52ch] mx-auto text-lg">
+      The Qing will ride from the north, the world will turn Western —
+      but the four centuries that ran from Kublai to Chongzhen left
+      a China unlike any before them.
+    </p>
+  </section>
+</BaseLayout>

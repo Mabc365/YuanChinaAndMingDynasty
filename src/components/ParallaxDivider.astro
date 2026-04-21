@@ -1,0 +1,140 @@
+---
+interface Props {
+  year?: string;
+  caption?: string;
+  character?: string;
+}
+const {
+  year = "1368",
+  caption = "The Mandate Shifts",
+  character = "明",
+} = Astro.props;
+---
+
+<section class="dv-root" data-dv>
+  <span class="dv-char" data-dv-char aria-hidden="true">{character}</span>
+
+  <div class="dv-frame">
+    <span class="dv-rule"></span>
+    <p class="dv-caption">
+      <span class="dv-year">{year}</span>
+      <span class="dv-sep">—</span>
+      <span class="dv-cap">{caption}</span>
+    </p>
+    <span class="dv-rule"></span>
+  </div>
+</section>
+
+<style>
+  .dv-root {
+    position: relative;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .dv-char {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    font-size: 50vw;
+    line-height: 1;
+    color: #c9a84c;
+    opacity: 0.03;
+    user-select: none;
+    pointer-events: none;
+    will-change: transform, opacity;
+    letter-spacing: -0.02em;
+  }
+
+  .dv-frame {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    max-width: 1200px;
+    width: calc(100% - 4rem);
+  }
+
+  .dv-rule {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      #c9a84c 40%,
+      #c9a84c 60%,
+      transparent
+    );
+    opacity: 0.75;
+  }
+
+  .dv-caption {
+    display: flex;
+    align-items: center;
+    gap: 1.25rem;
+    color: #c9a84c;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.78rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  .dv-year  { font-weight: 500; }
+  .dv-sep   { opacity: 0.5; }
+  .dv-cap   { color: #e8dcc8; }
+
+  @media (max-width: 768px) {
+    .dv-char { font-size: 80vw; }
+    .dv-frame { gap: 1rem; }
+    .dv-caption { font-size: 0.65rem; letter-spacing: 0.3em; gap: 0.75rem; }
+  }
+</style>
+
+<script>
+  const initDividerZoom = async () => {
+    const roots = Array.from(document.querySelectorAll<HTMLElement>("[data-dv]"));
+    if (!roots.length) return;
+
+    let gsap: any, ScrollTrigger: any;
+    try {
+      gsap = (await import("https://cdn.skypack.dev/gsap")).default;
+      ScrollTrigger = (await import("https://cdn.skypack.dev/gsap/ScrollTrigger")).default;
+      gsap.registerPlugin(ScrollTrigger);
+    } catch {
+      return; // silent no-op
+    }
+
+    for (const root of roots) {
+      const char = root.querySelector<HTMLElement>("[data-dv-char]");
+      if (!char) continue;
+
+      gsap.fromTo(
+        char,
+        { scale: 0.85, opacity: 0.015 },
+        {
+          scale: 1.15,
+          opacity: 0.05,
+          ease: "none",
+          scrollTrigger: {
+            trigger: root,
+            start: "top bottom",
+            end: "bottom top",
+            scrub: 1.2,
+          },
+        }
+      );
+    }
+  };
+
+  initDividerZoom();
+  document.addEventListener("astro:after-swap", initDividerZoom);
+</script>
