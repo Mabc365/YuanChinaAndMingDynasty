@@ -1,0 +1,820 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Yuan · Ming — 测验 Quiz">
+  <!-- progress bar -->
+  <div class="qz-progress" data-qz-progress aria-hidden="true">
+    <span class="qz-progress-fill" data-qz-progress-fill></span>
+  </div>
+
+  <!-- film grain (reuses global .film-grain) -->
+  <div class="film-grain qz-grain" aria-hidden="true"></div>
+
+  <section class="qz-root" data-qz-root>
+    <!-- question stage -->
+    <div class="qz-stage" data-qz-stage>
+      <!-- ghost background number (mirrors timeline year technique) -->
+      <span class="qz-ghost" data-qz-ghost aria-hidden="true">01</span>
+
+      <div class="qz-panel" data-qz-panel>
+        <p class="qz-eyebrow" data-qz-eyebrow>
+          问 <span class="qz-eyebrow-dot">·</span> Question
+          <span data-qz-num>01</span>
+          <span class="qz-eyebrow-slash">/</span> 10
+        </p>
+
+        <h2 class="qz-question" data-qz-question>&nbsp;</h2>
+
+        <div class="qz-options" data-qz-options></div>
+
+        <p class="qz-feedback" data-qz-feedback aria-live="polite"></p>
+
+        <button
+          type="button"
+          class="qz-next"
+          data-qz-next
+          aria-label="Next question"
+        >
+          Next <span class="qz-next-arrow">→</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- results screen (hidden until finish) -->
+    <div class="qz-results" data-qz-results hidden>
+      <p class="qz-res-eyebrow" data-qz-res-eye>
+        成绩 <span>·</span> Result
+      </p>
+
+      <p class="qz-score" data-qz-score>0 / 10</p>
+
+      <p class="qz-tier" data-qz-tier>布衣 — Common Folk</p>
+
+      <span class="qz-res-rule" data-qz-res-rule aria-hidden="true"></span>
+
+      <p class="qz-tier-desc" data-qz-tier-desc></p>
+
+      <div class="qz-res-actions" data-qz-res-actions>
+        <button type="button" class="qz-res-btn qz-retry" data-qz-retry>
+          重试 <span>Retry</span>
+        </button>
+        <a href="/" class="qz-res-btn qz-return" data-qz-return>
+          <span class="qz-return-arrow">←</span> 返回 <span>Return</span>
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  /* ——————————— progress bar (very top) ——————————— */
+  .qz-progress {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: rgba(201, 168, 76, 0.12);
+    z-index: 70;
+    pointer-events: none;
+  }
+  .qz-progress-fill {
+    display: block;
+    height: 100%;
+    width: 0%;
+    background: #c9a84c;
+    box-shadow: 0 0 8px rgba(201, 168, 76, 0.55);
+    transition: width 0.55s cubic-bezier(.22,.61,.36,1);
+    will-change: width;
+  }
+
+  /* ——————————— page / stage ——————————— */
+  .qz-grain {
+    position: fixed;
+    inset: -12%;
+    z-index: 1;
+    opacity: 0.06;
+  }
+
+  .qz-root {
+    position: relative;
+    min-height: 100svh;
+    width: 100%;
+    padding: 0 1.25rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .qz-stage {
+    position: relative;
+    width: 100%;
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 6rem 0 5rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100svh;
+  }
+
+  /* ghost background number — mirrors timeline year */
+  .qz-ghost {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    font-size: 20vw;
+    line-height: 0.85;
+    color: #c9a84c;
+    opacity: 0.09;
+    letter-spacing: -0.03em;
+    user-select: none;
+    pointer-events: none;
+    z-index: 0;
+    will-change: opacity, transform;
+  }
+
+  .qz-panel {
+    position: relative;
+    z-index: 2;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2rem;
+    text-align: center;
+    padding: 2rem 1rem;
+    will-change: transform, opacity;
+  }
+  /* scrim so the ghost number never bleeds through the text */
+  .qz-panel::before {
+    content: "";
+    position: absolute;
+    inset: -1.5rem -2rem;
+    background: radial-gradient(
+      ellipse at center,
+      rgba(10, 8, 4, 0.88) 0%,
+      rgba(10, 8, 4, 0.65) 55%,
+      transparent 85%
+    );
+    z-index: -1;
+    pointer-events: none;
+  }
+
+  .qz-eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: #c9a84c;
+    font-size: 0.72rem;
+    letter-spacing: 0.38em;
+    text-transform: uppercase;
+    opacity: 0.9;
+  }
+  .qz-eyebrow-dot  { opacity: 0.55; margin: 0 0.35em; }
+  .qz-eyebrow-slash { opacity: 0.4; margin: 0 0.35em; }
+
+  .qz-question {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 500;
+    color: #f4ecdc;
+    font-size: 2.15rem;
+    line-height: 1.45;
+    max-width: 34ch;
+    margin: 0 auto;
+    letter-spacing: 0.005em;
+    text-wrap: balance;
+  }
+
+  /* ——————————— options ——————————— */
+  .qz-options {
+    width: 100%;
+    max-width: 30rem;
+    margin: 0.75rem auto 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .qz-option {
+    width: 100%;
+    padding: 1.1rem 1.5rem;
+    background: rgba(20, 16, 8, 0.45);
+    border: 1px solid #c9a84c;
+    color: #f4ecdc;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.35rem;
+    font-weight: 500;
+    letter-spacing: 0.015em;
+    line-height: 1.35;
+    text-align: center;
+    cursor: pointer;
+    transition:
+      border-color 0.3s ease,
+      background-color 0.3s ease,
+      color 0.3s ease,
+      transform 0.25s ease;
+    will-change: transform, border-color, background-color, color;
+  }
+  .qz-option:hover:not([disabled]) {
+    border-color: #c0392b;
+    background-color: rgba(192, 57, 43, 0.12);
+    color: #ffffff;
+  }
+  .qz-option[disabled] {
+    cursor: default;
+  }
+  .qz-option.is-correct {
+    border-color: #c9a84c;
+    color: #f5d37a;
+    background-color: rgba(201, 168, 76, 0.12);
+  }
+  .qz-option.is-wrong {
+    border-color: #c0392b;
+    color: #e57765;
+    background-color: rgba(192, 57, 43, 0.14);
+  }
+  .qz-option.is-dimmed {
+    opacity: 0.3;
+  }
+
+  /* ——————————— feedback label ——————————— */
+  .qz-feedback {
+    min-height: 1.75rem;
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-size: 1.35rem;
+    letter-spacing: 0.04em;
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    color: #f5d37a;
+  }
+  .qz-feedback.is-visible { opacity: 1; }
+  .qz-feedback.is-wrong   { color: #e57765; }
+
+  /* ——————————— next button ——————————— */
+  .qz-next {
+    position: absolute;
+    bottom: 2rem;
+    right: 1.5rem;
+    background: transparent;
+    border: 0;
+    color: #c9a84c;
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.85rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    padding: 0.6rem 0.25rem;
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease, color 0.25s ease, transform 0.25s ease;
+  }
+  .qz-next.is-visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .qz-next:hover { color: #c0392b; }
+  .qz-next-arrow { margin-left: 0.5em; display: inline-block; }
+
+  /* ——————————— results ——————————— */
+  .qz-results {
+    position: absolute;
+    inset: 0;
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 1.5rem;
+    padding: 6rem 1.25rem 5rem;
+    z-index: 5;
+  }
+  .qz-results.is-visible { display: flex; }
+
+  .qz-res-eyebrow {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    color: #c9a84c;
+    font-size: 0.78rem;
+    letter-spacing: 0.45em;
+    text-transform: uppercase;
+    opacity: 0;
+  }
+  .qz-res-eyebrow span { opacity: 0.5; margin: 0 0.35em; }
+
+  .qz-score {
+    font-family: "Noto Serif SC", serif;
+    font-weight: 600;
+    color: #c9a84c;
+    font-size: clamp(5rem, 14vw, 10rem);
+    line-height: 1;
+    letter-spacing: -0.02em;
+    margin: 0;
+    opacity: 0;
+    text-shadow: 0 0 40px rgba(201, 168, 76, 0.35);
+  }
+
+  .qz-tier {
+    font-family: "Cormorant Garamond", serif;
+    font-style: italic;
+    font-weight: 500;
+    color: #e57765;
+    font-size: 2.25rem;
+    letter-spacing: 0.04em;
+    line-height: 1.25;
+    margin: 0;
+    opacity: 0;
+  }
+
+  .qz-res-rule {
+    display: block;
+    width: 280px;
+    max-width: 80%;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      #c9a84c 50%,
+      transparent
+    );
+    opacity: 0;
+  }
+
+  .qz-tier-desc {
+    font-family: "Cormorant Garamond", serif;
+    color: #f4ecdc;
+    font-size: 1.4rem;
+    line-height: 1.6;
+    max-width: 52ch;
+    opacity: 0;
+    font-style: italic;
+    text-wrap: balance;
+  }
+
+  .qz-res-actions {
+    display: flex;
+    gap: 2.5rem;
+    margin-top: 1rem;
+    opacity: 0;
+  }
+  .qz-res-btn {
+    background: rgba(20, 16, 8, 0.45);
+    border: 1px solid #c9a84c;
+    color: #c9a84c;
+    padding: 0.95rem 1.9rem;
+    font-family: "Cormorant Garamond", serif;
+    font-size: 1.3rem;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    text-decoration: none;
+    transition:
+      color 0.3s ease,
+      border-color 0.3s ease,
+      background-color 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.7rem;
+  }
+  .qz-res-btn:hover {
+    color: #ffffff;
+    border-color: #c0392b;
+    background-color: rgba(192, 57, 43, 0.14);
+  }
+  .qz-res-btn span {
+    font-family: "JetBrains Mono", ui-monospace, monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.4em;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  /* ——————————— mobile ——————————— */
+  @media (max-width: 768px) {
+    .qz-stage { padding: 5rem 0 6rem; }
+    .qz-question { font-size: 1.55rem; line-height: 1.4; }
+    .qz-option { font-size: 1.2rem; padding: 1rem 1.1rem; }
+    .qz-ghost { font-size: 44vw; opacity: 0.08; }
+    .qz-next { right: 1rem; bottom: 1.25rem; font-size: 0.75rem; }
+    .qz-tier { font-size: 1.65rem; }
+    .qz-tier-desc { font-size: 1.2rem; }
+    .qz-res-actions { flex-direction: column; gap: 1rem; }
+  }
+</style>
+
+<script>
+  type QuizQuestion = {
+    q: string;
+    correct: string;
+    wrong: string[];
+  };
+
+  const QUESTIONS: QuizQuestion[] = [
+    {
+      q: "What does \u201CYuan\u201D mean in Chinese?",
+      correct: "Origin / Prime",
+      wrong: ["Golden", "Dragon", "Eternal"],
+    },
+    {
+      q: "Who founded the Yuan Dynasty?",
+      correct: "Kublai Khan",
+      wrong: ["Genghis Khan", "Timur", "Hongwu Emperor"],
+    },
+    {
+      q: "How many voyages did Zheng He complete?",
+      correct: "Seven",
+      wrong: ["Three", "Five", "Twelve"],
+    },
+    {
+      q: "What was the original name of Beijing under the Yuan?",
+      correct: "Dadu",
+      wrong: ["Nanjing", "Xanadu", "Hangzhou"],
+    },
+    {
+      q: "Which rebellion ended the Yuan Dynasty?",
+      correct: "Red Turban Rebellion",
+      wrong: ["Boxer Rebellion", "White Lotus Rebellion", "An Lushan Rebellion"],
+    },
+    {
+      q: "What does \u201CMing\u201D mean in Chinese?",
+      correct: "Bright / Luminous",
+      wrong: ["Eternal", "Powerful", "Golden"],
+    },
+    {
+      q: "Which emperor commissioned the Forbidden City?",
+      correct: "Yongle Emperor",
+      wrong: ["Hongwu Emperor", "Xuande Emperor", "Zhengtong Emperor"],
+    },
+    {
+      q: "What happened at the Battle of Tumu in 1449?",
+      correct: "The Ming Emperor was captured by Mongols",
+      wrong: [
+        "Zheng He\u2019s fleet was destroyed",
+        "The Forbidden City was burned",
+        "Korea was invaded",
+      ],
+    },
+    {
+      q: "Where did Portugal establish a trading post in 1557?",
+      correct: "Macau",
+      wrong: ["Hong Kong", "Shanghai", "Guangzhou"],
+    },
+    {
+      q: "How did the last Ming emperor Chongzhen die?",
+      correct: "Hanged himself as Beijing fell",
+      wrong: [
+        "Executed by rebels",
+        "Died in battle",
+        "Exiled to Manchuria",
+      ],
+    },
+  ];
+
+  const TIERS = [
+    {
+      min: 10,
+      max: 10,
+      label: "\u5929\u5b50 \u2014 Son of Heaven",
+      desc: "A flawless hand. You read the four centuries as the court historians did, down to the last omen.",
+    },
+    {
+      min: 7,
+      max: 9,
+      label: "\u8fdb\u58eb \u2014 Scholar Official",
+      desc: "A learned answer, worthy of the Hanlin Academy. You would have risen through the imperial examinations with ease.",
+    },
+    {
+      min: 4,
+      max: 6,
+      label: "\u79c0\u624d \u2014 Candidate",
+      desc: "A respectable grounding. Return to the chronicles, and the next examination is yours.",
+    },
+    {
+      min: 0,
+      max: 3,
+      label: "\u5e03\u8863 \u2014 Common Folk",
+      desc: "The imperial gates are heavy. Walk the timeline once more, and the dynasties will begin to speak.",
+    },
+  ];
+
+  type PreparedQuestion = {
+    q: string;
+    options: string[];
+    correctIndex: number;
+  };
+
+  const shuffle = <T,>(arr: T[]): T[] => {
+    const a = arr.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  };
+
+  const prepareQuestions = (): PreparedQuestion[] =>
+    QUESTIONS.map((q) => {
+      const options = shuffle([q.correct, ...q.wrong]);
+      return {
+        q: q.q,
+        options,
+        correctIndex: options.indexOf(q.correct),
+      };
+    });
+
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+
+  const pickTier = (score: number) =>
+    TIERS.find((t) => score >= t.min && score <= t.max) ?? TIERS[TIERS.length - 1];
+
+  const initQuiz = async () => {
+    const root = document.querySelector<HTMLElement>("[data-qz-root]");
+    if (!root) return;
+
+    const stage = document.querySelector<HTMLElement>("[data-qz-stage]");
+    const panel = document.querySelector<HTMLElement>("[data-qz-panel]");
+    const ghost = document.querySelector<HTMLElement>("[data-qz-ghost]");
+    const numEl = document.querySelector<HTMLElement>("[data-qz-num]");
+    const questionEl = document.querySelector<HTMLElement>("[data-qz-question]");
+    const optionsEl = document.querySelector<HTMLElement>("[data-qz-options]");
+    const feedbackEl = document.querySelector<HTMLElement>("[data-qz-feedback]");
+    const nextBtn = document.querySelector<HTMLButtonElement>("[data-qz-next]");
+    const progressFill = document.querySelector<HTMLElement>("[data-qz-progress-fill]");
+    const resultsEl = document.querySelector<HTMLElement>("[data-qz-results]");
+    const scoreEl = document.querySelector<HTMLElement>("[data-qz-score]");
+    const tierEl = document.querySelector<HTMLElement>("[data-qz-tier]");
+    const tierDescEl = document.querySelector<HTMLElement>("[data-qz-tier-desc]");
+    const retryBtn = document.querySelector<HTMLButtonElement>("[data-qz-retry]");
+    const resEyebrow = document.querySelector<HTMLElement>("[data-qz-res-eye]");
+    const resRule = document.querySelector<HTMLElement>("[data-qz-res-rule]");
+    const resActions = document.querySelector<HTMLElement>("[data-qz-res-actions]");
+
+    if (
+      !stage || !panel || !ghost || !numEl || !questionEl || !optionsEl ||
+      !feedbackEl || !nextBtn || !progressFill || !resultsEl || !scoreEl ||
+      !tierEl || !tierDescEl || !retryBtn || !resEyebrow || !resRule || !resActions
+    ) return;
+
+    let gsap: any = null;
+    try {
+      gsap = (await import("https://cdn.skypack.dev/gsap")).default;
+    } catch { /* CSS fallback */ }
+
+    let questions: PreparedQuestion[] = prepareQuestions();
+    let index = 0;
+    let score = 0;
+    let answered = false;
+
+    const setProgress = (n: number) => {
+      progressFill.style.width = `${(n / QUESTIONS.length) * 100}%`;
+    };
+
+    const clearFeedback = () => {
+      feedbackEl.textContent = "";
+      feedbackEl.classList.remove("is-visible", "is-wrong");
+    };
+
+    const hideNext = () => {
+      nextBtn.classList.remove("is-visible");
+    };
+
+    const renderQuestion = () => {
+      answered = false;
+      const current = questions[index];
+      numEl.textContent = pad2(index + 1);
+      ghost.textContent = pad2(index + 1);
+      questionEl.textContent = current.q;
+
+      optionsEl.innerHTML = "";
+      current.options.forEach((opt, i) => {
+        const btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "qz-option";
+        btn.textContent = opt;
+        btn.dataset.idx = String(i);
+        btn.addEventListener("click", () => onAnswer(i, btn));
+        optionsEl.appendChild(btn);
+      });
+
+      clearFeedback();
+      hideNext();
+      setProgress(index);
+    };
+
+    const animateIn = () => {
+      if (gsap) {
+        gsap.fromTo(
+          panel,
+          { y: 30, opacity: 0 },
+          { y: 0, opacity: 1, duration: 0.4, ease: "power2.out" }
+        );
+        gsap.fromTo(
+          ghost,
+          { opacity: 0 },
+          { opacity: 0.12, duration: 0.6, ease: "power2.out" }
+        );
+      } else {
+        panel.style.transition = "opacity 0.4s ease, transform 0.4s ease";
+        panel.style.opacity = "0";
+        panel.style.transform = "translateY(30px)";
+        requestAnimationFrame(() => {
+          panel.style.opacity = "1";
+          panel.style.transform = "translateY(0)";
+        });
+      }
+    };
+
+    const animateOut = (cb: () => void) => {
+      if (gsap) {
+        gsap.to(panel, {
+          y: -30,
+          opacity: 0,
+          duration: 0.3,
+          ease: "power2.in",
+          onComplete: cb,
+        });
+      } else {
+        panel.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+        panel.style.opacity = "0";
+        panel.style.transform = "translateY(-30px)";
+        setTimeout(cb, 300);
+      }
+    };
+
+    const onAnswer = (i: number, btn: HTMLButtonElement) => {
+      if (answered) return;
+      answered = true;
+
+      const current = questions[index];
+      const isCorrect = i === current.correctIndex;
+      const allBtns = Array.from(
+        optionsEl.querySelectorAll<HTMLButtonElement>(".qz-option")
+      );
+      for (const b of allBtns) b.setAttribute("disabled", "true");
+
+      if (isCorrect) {
+        score += 1;
+        btn.classList.add("is-correct");
+        feedbackEl.textContent = "\u6b63\u786e  Correct";
+        feedbackEl.classList.remove("is-wrong");
+        feedbackEl.classList.add("is-visible");
+
+        for (const b of allBtns) {
+          if (b !== btn) b.classList.add("is-dimmed");
+        }
+
+        if (gsap) {
+          gsap.fromTo(
+            btn,
+            { scale: 1 },
+            {
+              scale: 1.06,
+              duration: 0.5,
+              ease: "elastic.out(1, 0.45)",
+              yoyo: true,
+              repeat: 1,
+            }
+          );
+        }
+      } else {
+        btn.classList.add("is-wrong");
+        feedbackEl.textContent = "\u9519\u8bef  Incorrect";
+        feedbackEl.classList.add("is-visible", "is-wrong");
+
+        const correctBtn = allBtns[current.correctIndex];
+        if (correctBtn) correctBtn.classList.add("is-correct");
+        for (const b of allBtns) {
+          if (b !== btn && b !== correctBtn) b.classList.add("is-dimmed");
+        }
+
+        if (gsap) {
+          gsap.fromTo(
+            btn,
+            { x: 0 },
+            {
+              x: 0,
+              duration: 0.5,
+              ease: "power2.out",
+              keyframes: [
+                { x: -10 }, { x: 10 }, { x: -8 },
+                { x: 8 }, { x: -4 }, { x: 0 },
+              ],
+            }
+          );
+        } else {
+          btn.animate(
+            [
+              { transform: "translateX(0)" },
+              { transform: "translateX(-10px)" },
+              { transform: "translateX(10px)" },
+              { transform: "translateX(-6px)" },
+              { transform: "translateX(6px)" },
+              { transform: "translateX(0)" },
+            ],
+            { duration: 420, easing: "ease-out" }
+          );
+        }
+      }
+
+      setProgress(index + 1);
+
+      if (gsap) {
+        gsap.fromTo(
+          nextBtn,
+          { opacity: 0, x: 10 },
+          {
+            opacity: 1,
+            x: 0,
+            duration: 0.45,
+            delay: 0.4,
+            ease: "power2.out",
+            onStart: () => nextBtn.classList.add("is-visible"),
+          }
+        );
+      } else {
+        setTimeout(() => nextBtn.classList.add("is-visible"), 400);
+      }
+    };
+
+    const advance = () => {
+      if (!answered) return;
+      if (index >= QUESTIONS.length - 1) {
+        showResults();
+        return;
+      }
+      animateOut(() => {
+        index += 1;
+        renderQuestion();
+        animateIn();
+      });
+    };
+
+    nextBtn.addEventListener("click", advance);
+
+    const showResults = () => {
+      animateOut(() => {
+        stage.style.display = "none";
+        resultsEl.removeAttribute("hidden");
+        resultsEl.classList.add("is-visible");
+        setProgress(QUESTIONS.length);
+
+        scoreEl.textContent = `${score} / ${QUESTIONS.length}`;
+        const tier = pickTier(score);
+        tierEl.textContent = tier.label;
+        tierDescEl.textContent = tier.desc;
+
+        const elements = [resEyebrow, scoreEl, tierEl, resRule, tierDescEl, resActions];
+
+        if (gsap) {
+          for (const el of elements) {
+            (el as HTMLElement).style.opacity = "0";
+          }
+          gsap.to(elements, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: "back.out(1.4)",
+            stagger: 0.15,
+            onStart: function () {
+              gsap.set(elements, { y: 20 });
+            },
+          });
+        } else {
+          elements.forEach((el, i) => {
+            const node = el as HTMLElement;
+            node.style.transition = `opacity 0.7s ease ${i * 0.15}s, transform 0.7s ease ${i * 0.15}s`;
+            node.style.transform = "translateY(20px)";
+            node.style.opacity = "0";
+            requestAnimationFrame(() => {
+              node.style.opacity = "1";
+              node.style.transform = "translateY(0)";
+            });
+          });
+        }
+      });
+    };
+
+    const resetQuiz = () => {
+      resultsEl.classList.remove("is-visible");
+      resultsEl.setAttribute("hidden", "");
+      stage.style.display = "";
+      questions = prepareQuestions();
+      index = 0;
+      score = 0;
+      renderQuestion();
+      animateIn();
+    };
+
+    retryBtn.addEventListener("click", resetQuiz);
+
+    // boot
+    renderQuestion();
+    animateIn();
+  };
+
+  initQuiz();
+  document.addEventListener("astro:after-swap", initQuiz);
+</script>
